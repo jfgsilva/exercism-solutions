@@ -29,7 +29,7 @@ var letters = strings.Split("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "")
 var digits = strings.Split("0123456789", "")
 
 // map pre created with max length to hold the robot names so we can check if they exist
-var db = make(map[int]Robot, maxNumberNames)
+var dbSlice = make([]Robot, maxNumberNames)
 
 // anonymous func to generated the robot's name
 func generator() {
@@ -40,7 +40,7 @@ func generator() {
 				for _, d2 := range digits {
 					for _, d3 := range digits {
 						name := l1 + l2 + d1 + d2 + d3
-						db[cnt2] = Robot{name: name, isNameTaken: false}
+						dbSlice[cnt2] = Robot{name: name, isNameTaken: false}
 						cnt2 += 1
 					}
 				}
@@ -61,15 +61,16 @@ func (r *Robot) Name() (string, error) {
 			return "", errors.New("max Number of different names reached")
 		}
 		randRobot := rand.Intn(maxNumberNames)
-		if !db[randRobot].isNameTaken {
-			nr := db[randRobot]
-			nr.isNameTaken = true
-			r.name = db[randRobot].name
+		if !dbSlice[randRobot].isNameTaken {
+			dbSlice[randRobot].isNameTaken = true
+			r.name = dbSlice[randRobot].name
+			cnt += 1
 			return r.name, nil
 		} else {
 			continue
 		}
 	}
+
 }
 
 func (r *Robot) Reset() {
