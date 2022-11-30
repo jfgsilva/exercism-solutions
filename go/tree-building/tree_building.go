@@ -24,7 +24,7 @@ func Build(records []Record) (*Node, error) {
 	// every record is a node
 	nodes := make([]Node, len(records))
 	rootNode := &nodes[0]
-	fmt.Println("records:", crecords)
+	fmt.Println("records:", records)
 	for _, record := range records {
 		switch {
 		// this is the root node
