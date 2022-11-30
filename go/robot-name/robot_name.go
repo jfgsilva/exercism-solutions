@@ -1,6 +1,7 @@
 package robotname
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -15,7 +16,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-const maxNumberNames = 26 * 26 * 9 * 9 * 9
+const maxNumberNames = 26 * 26 * 10 * 10 * 10
 
 var Cnt = 0
 
@@ -38,9 +39,9 @@ func (r *Robot) Name() (string, error) {
 	}
 	for {
 		key := generator()
-		// if Cnt > maxNumberNames {
-		// 	return "", errors.New("max Number of different names reached")
-		// }
+		if Cnt > maxNumberNames {
+			return "", errors.New("max Number of different names reached")
+		}
 		if _, ok := DB[key]; !ok {
 			DB[key] = 1
 			Cnt += 1
