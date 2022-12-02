@@ -61,7 +61,12 @@ func (s scoreboard) String() string {
 		slcTeams = append(slcTeams, *val)
 	}
 	sort.Slice(slcTeams, func(i, j int) bool {
-		return slcTeams[i].points > slcTeams[j].points
+		if slcTeams[i].points > slcTeams[j].points {
+			return true
+		} else if slcTeams[i].points == slcTeams[j].points {
+			return slcTeams[i].name < slcTeams[j].name
+		}
+		return false
 	})
 	header := fmt.Sprintf("%-30s |%3v |%3v |%3v |%3v |%3v", "Team", "MP", "W", "D", "L", "P")
 	var str = []string{header}
