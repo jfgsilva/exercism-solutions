@@ -36,7 +36,7 @@ func (t *team) draw() {
 }
 
 func (t team) String() string {
-	s := fmt.Sprintf("%-30s|%3d |%3d |%3d |%3d |%3d ", t.name, t.matchesPlayed, t.wins, t.draws, t.losses, t.points)
+	s := fmt.Sprintf("%-30s |%3v |%3v |%3v |%3v |%3v", t.name, t.matchesPlayed, t.wins, t.draws, t.losses, t.points)
 	// fmt.Println("size of s", len(s))
 	return s
 }
@@ -63,11 +63,13 @@ func (s scoreboard) String() string {
 	sort.Slice(slcTeams, func(i, j int) bool {
 		return slcTeams[i].points > slcTeams[j].points
 	})
-	var str = []string{"Team                           | MP |  W |  D |  L |  P"}
+	header := fmt.Sprintf("%-30s |%3v |%3v |%3v |%3v |%3v", "Team", "MP", "W", "D", "L", "P")
+	var str = []string{header}
 	for _, line := range slcTeams {
 		str = append(str, fmt.Sprint(line))
 	}
-	return strings.Join(str, "\n")
+	// str = append(str, "\n")
+	return strings.Join(str, "\n") + "\n"
 }
 
 func Tally(reader io.Reader, writer io.Writer) error {

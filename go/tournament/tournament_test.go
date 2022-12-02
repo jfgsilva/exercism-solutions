@@ -115,7 +115,9 @@ func TestTallyHappy(t *testing.T) {
 			}
 			got := buffer.String()
 			if got != tc.expected {
-				t.Fatalf("Tally for input named %q returned unexpected value\ngot: %s\nwant: %s", tc.description, got, tc.expected)
+				fmt.Printf("Expected %d, got %d", len(tc.expected), len(got))
+				t.Fatalf("Tally for input named %q returned unexpected value\ngot:\n%s\nwant:\n%s", tc.description, got, tc.expected)
+
 			}
 		})
 	}
