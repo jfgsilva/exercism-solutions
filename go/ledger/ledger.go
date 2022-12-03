@@ -14,14 +14,20 @@ type Entry struct {
 
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
 	var entriesCopy []Entry
-	for _, e := range entries {
-		entriesCopy = append(entriesCopy, e)
+	// creates a copy of entries
+	entriesCopy = append(entriesCopy, entries...)
+	// error handling
+	switch {
+	case !(currency == "USD" || currency == "EUR"):
+		return "", errors.New("wrong currency")
 	}
-	if len(entries) == 0 {
-		if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
-			return "", err
-		}
-	}
+	// if len(entries) == 0 {
+	// 	// fmt.Println(FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}))
+	// 	if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
+	// 		fmt.Println("###AQUI", err)
+	// 		return "", err
+	// 	}
+	// }
 	m1 := map[bool]int{true: 0, false: 1}
 	m2 := map[bool]int{true: -1, false: 1}
 	es := entriesCopy
@@ -58,7 +64,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			strings.Repeat(" ", 25-len("Description")) +
 			" | " + "Change" + "\n"
 	} else {
-		return "", errors.New("")
+		return "", errors.New("errors 0")
 	}
 	// Parallelism, always a great idea
 	co := make(chan struct {
@@ -73,7 +79,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					i int
 					s string
 					e error
-				}{e: errors.New("")}
+				}{e: errors.New("error 1")}
 			}
 			d1, d2, d3, d4, d5 := entry.Date[0:4], entry.Date[4], entry.Date[5:7], entry.Date[7], entry.Date[8:10]
 			if d2 != '-' {
@@ -81,14 +87,14 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					i int
 					s string
 					e error
-				}{e: errors.New("")}
+				}{e: errors.New("error 2")}
 			}
 			if d4 != '-' {
 				co <- struct {
 					i int
 					s string
 					e error
-				}{e: errors.New("")}
+				}{e: errors.New("error 3")}
 			}
 			de := entry.Description
 			if len(de) > 25 {
@@ -119,7 +125,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 						i int
 						s string
 						e error
-					}{e: errors.New("")}
+					}{e: errors.New("error 4")}
 				}
 				a += " "
 				centsStr := strconv.Itoa(cents)
@@ -157,13 +163,15 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					a += "€"
 				} else if currency == "USD" {
 					a += "$"
-				} else {
-					co <- struct {
-						i int
-						s string
-						e error
-					}{e: errors.New("")}
 				}
+				// solved with error handling added at the start
+				// } else {
+				// 	co <- struct {
+				// 		i int
+				// 		s string
+				// 		e error
+				// 	}{e: errors.New("error 5")}
+				// }
 				centsStr := strconv.Itoa(cents)
 				switch len(centsStr) {
 				case 1:
@@ -196,7 +204,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					i int
 					s string
 					e error
-				}{e: errors.New("")}
+				}{e: errors.New("error 6")}
 			}
 			var al int
 			for range a {
