@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,6 +22,8 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	switch {
 	case !(currency == "USD" || currency == "EUR"):
 		return "", errors.New("wrong currency")
+	case !(locale == "en-US" || locale == "nl-NL"):
+		return "", errors.New("wrong locale")
 	}
 	//refactored entriesCopy sorting: ascending date asc, description asc, change asc
 	sort.Slice(entriesCopy, func(i, j int) bool {
@@ -37,25 +40,17 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			return false
 		}
 	})
+	// refactored ledger header
+	var s string = "%-10v | %-25v | %-6v\n"
+	switch locale {
+	case "nl-NL":
+		s = fmt.Sprintf(s, "Datum", "Omschrijving", "Verandering")
 
-	var s string
-	if locale == "nl-NL" {
-		s = "Datum" +
-			strings.Repeat(" ", 10-len("Datum")) +
-			" | " +
-			"Omschrijving" +
-			strings.Repeat(" ", 25-len("Omschrijving")) +
-			" | " + "Verandering" + "\n"
-	} else if locale == "en-US" {
-		s = "Date" +
-			strings.Repeat(" ", 10-len("Date")) +
-			" | " +
-			"Description" +
-			strings.Repeat(" ", 25-len("Description")) +
-			" | " + "Change" + "\n"
-	} else {
-		return "", errors.New("errors 0")
+	case "en-US":
+		s = fmt.Sprintf(s, "Date", "Description", "Change")
 	}
+
+	fmt.Println(len(s))
 	// Parallelism, always a great idea
 	co := make(chan struct {
 		i int
