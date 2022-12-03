@@ -6,12 +6,48 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Entry struct {
 	Date        string // "Y-m-d"
 	Description string
 	Change      int // in cents
+}
+
+const outputFormat string = "%-10v | %-25v | %-6v\n"
+
+func (e *Entry) format(currency string, locale string) {
+	e.formatDate(locale)
+	e.formatDescription()
+	e.formatChange(currency, locale)
+}
+
+func (e *Entry) formatDate(locale string) error {
+	entryDateLayout := "2006-01-02"
+	enUsLayout := "01/02/2006"
+	nlNlLayout := "02-01-2006"
+	date, err := time.Parse(entryDateLayout, e.Date)
+	if err != nil {
+		strErr := fmt.Sprintf("date has wrong format %v", e.Date)
+		return errors.New(strErr)
+	}
+	if locale == "en-US" {
+		e.Date = date.Format(enUsLayout)
+	} else {
+		e.Date = date.Format(nlNlLayout)
+	}
+	return nil
+}
+
+func (e *Entry) formatDescription() {
+	if len(e.Description) > 25 {
+		e.Description = e.Description[:22] + "..."
+	}
+}
+
+func (e *Entry) formatChange(currency string, locale string) {
+
 }
 
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
@@ -41,16 +77,17 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		}
 	})
 	// refactored ledger header
-	var s string = "%-10v | %-25v | %-6v\n"
+
+	var s, header string
+
 	switch locale {
 	case "nl-NL":
-		s = fmt.Sprintf(s, "Datum", "Omschrijving", "Verandering")
-
+		header = fmt.Sprintf(outputFormat, "Datum", "Omschrijving", "Verandering")
 	case "en-US":
-		s = fmt.Sprintf(s, "Date", "Description", "Change")
+		header = fmt.Sprintf(outputFormat, "Date", "Description", "Change")
 	}
-
-	fmt.Println(len(s))
+	// initialize header
+	s = header
 	// Parallelism, always a great idea
 	co := make(chan struct {
 		i int
@@ -59,22 +96,28 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	})
 	for i, et := range entriesCopy {
 		go func(i int, entry Entry) {
+			//fmt.Println("before:", entry)
+			//entry.format(currency, locale)
+			//fmt.Println("after:", entry)
 			if len(entry.Date) != 10 {
+				//fmt.Println("error 1")
 				co <- struct {
 					i int
 					s string
 					e error
 				}{e: errors.New("error 1")}
 			}
-			d1, d2, d3, d4, d5 := entry.Date[0:4], entry.Date[4], entry.Date[5:7], entry.Date[7], entry.Date[8:10]
-			if d2 != '-' {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("error 2")}
-			}
+			d1, _, d3, d4, d5 := entry.Date[0:4], entry.Date[4], entry.Date[5:7], entry.Date[7], entry.Date[8:10]
+			// if d2 != '-' {
+			// 	fmt.Println("error 2")
+			// 	co <- struct {
+			// 		i int
+			// 		s string
+			// 		e error
+			// 	}{e: errors.New("error 2")}
+			// }
 			if d4 != '-' {
+				//fmt.Println("error 3")
 				co <- struct {
 					i int
 					s string
@@ -105,13 +148,14 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					a += "€"
 				} else if currency == "USD" {
 					a += "$"
-				} else {
-					co <- struct {
-						i int
-						s string
-						e error
-					}{e: errors.New("error 4")}
 				}
+				// } else {
+				// 	co <- struct {
+				// 		i int
+				// 		s string
+				// 		e error
+				// 	}{e: errors.New("error 4")}
+				// }
 				a += " "
 				centsStr := strconv.Itoa(cents)
 				switch len(centsStr) {
@@ -184,13 +228,14 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				} else {
 					a += " "
 				}
-			} else {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("error 6")}
 			}
+			// } else {
+			// 	co <- struct {
+			// 		i int
+			// 		s string
+			// 		e error
+			// 	}{e: errors.New("error 6")}
+			// }
 			var al int
 			for range a {
 				al++
