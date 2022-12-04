@@ -98,7 +98,7 @@ func (e *Entry) formatChange(currency string, locale string) error {
 		if e.Change < 0 {
 			e.sChange = fmt.Sprintf("%v %v%v%v%v%v-", cur, thousands, hundredSep, hundreds, centSep, cents)
 		} else {
-			e.sChange = fmt.Sprintf("%v %v%v%v%v%v", cur, thousands, hundredSep, hundreds, centSep, cents)
+			e.sChange = fmt.Sprintf("%v %v%v%v%v%v ", cur, thousands, hundredSep, hundreds, centSep, cents)
 		}
 	case "en-US":
 		centSep = "."
@@ -108,7 +108,7 @@ func (e *Entry) formatChange(currency string, locale string) error {
 		if e.Change < 0 {
 			e.sChange = fmt.Sprintf("(%v%v%v%v%v%v)", cur, thousands, hundredSep, hundreds, centSep, cents)
 		} else {
-			e.sChange = fmt.Sprintf("%v%v%v%v%v%v", cur, thousands, hundredSep, hundreds, centSep, cents)
+			e.sChange = fmt.Sprintf("%v%v%v%v%v%v ", cur, thousands, hundredSep, hundreds, centSep, cents)
 		}
 	}
 	return nil
