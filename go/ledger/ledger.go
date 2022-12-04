@@ -16,8 +16,7 @@ type Entry struct {
 }
 
 const headerOutputFormat string = "%-10v | %-25v | %-6v\n"
-const entryOutputFormat string = "%-10v | %-25v | %12v\n"
-const entryOutputFormatNegative string = "%-10v | %-25v | (%12v)\n"
+const entryOutputFormat string = "%-10v | %-25v | %13v\n"
 
 func (e *Entry) format(currency string, locale string) error {
 	errDate := e.formatDate(locale)
