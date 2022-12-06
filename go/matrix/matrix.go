@@ -2,7 +2,6 @@ package matrix
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -18,7 +17,6 @@ type point struct {
 func New(s string) (Matrix, error) {
 	rows := strings.Split(strings.Trim(s, " "), "\n")
 	var m Matrix = Matrix{}
-	fmt.Println("rows", rows)
 	rowLength := 0
 	for rowIndex, row := range rows {
 		row = strings.TrimSpace(row)
@@ -46,14 +44,52 @@ func New(s string) (Matrix, error) {
 }
 
 // Cols and Rows must return the results without affecting the matrix.
+// at most cols is as big as matrix (1 col n rows)
 func (m Matrix) Cols() [][]int {
-	panic("not implemented")
+	cols := [][]int{}
+	for r := 0; r <= len(m); r++ {
+		var row []int
+		for c := 0; c <= len(m); c++ {
+			// we change the indexes here to return by cols
+			val, ok := m[point{x: r, y: c}]
+			if ok {
+				row = append(row, val)
+			} else {
+				break
+			}
+		}
+		if len(row) != 0 {
+			cols = append(cols, row)
+		}
+	}
+	return cols
 }
 
 func (m Matrix) Rows() [][]int {
-	panic("not implemented")
+	cols := [][]int{}
+	for r := 0; r <= len(m); r++ {
+		var row []int
+		for c := 0; c <= len(m); c++ {
+			// we keep the indexes to return by row
+			val, ok := m[point{x: c, y: r}]
+			if ok {
+				row = append(row, val)
+			} else {
+				break
+			}
+		}
+		if len(row) != 0 {
+			cols = append(cols, row)
+		}
+	}
+	return cols
 }
 
 func (m Matrix) Set(row, col, val int) bool {
-	panic("not implemented")
+	_, ok := m[point{x: col, y: row}]
+	if ok {
+		m[point{x: col, y: row}] = val
+		return true
+	}
+	return false
 }
