@@ -6,23 +6,16 @@ import (
 
 func Use(opener ResourceOpener, input string) error {
 	defrobStr := ""
-	defer func() interface{} {
-		// if r := recover(); r == nil {
-		// 	// fmt.Printf("Aqui 1 r has type %T", r)
-		// 	// recover from panic and keep trying to open
-		// }
+	defer func() {
 		r := recover()
-
 		switch r.(type) {
 		case nil:
 			//pass and proceed for transienterror or no error at all
-			return nil
+
 		case FrobError:
 			fmt.Println("how can I get access to defrogtag from here?!")
-			return r
 		default:
 			fmt.Printf("Here we need to return an error but how? %T\n", r)
-			return r
 		}
 	}()
 	resource, err := opener()
