@@ -1,39 +1,43 @@
 package erratum
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func Use(opener ResourceOpener, input string) error {
-	defrobStr := ""
-	defer func() {
-		r := recover()
-		switch r.(type) {
+func Use(opener ResourceOpener, input string) (err error) {
+	var resource Resource
+	//var err error
+	for resource, err = opener(); err != nil; {
+		resource, err = opener()
+		switch err.(type) {
 		case nil:
-			//pass and proceed for transienterror or no error at all
-
-		case FrobError:
-			fmt.Println("how can I get access to defrogtag from here?!")
-		default:
-			fmt.Printf("Here we need to return an error but how? %T\n", r)
+			break
+		case TransientError:
+			continue
 		}
-	}()
-	resource, err := opener()
-	defer resource.Close()
+		break
+	}
 
-	switch err.(type) {
-	case TransientError:
-		Use(opener, input)
-	case nil:
-		// do nothing
-	default:
-		fmt.Println("AQUI 2")
+	if err != nil {
+		fmt.Println("didn't got to panic because another error appeared")
 		return err
 	}
-
+	fmt.Println("err current value: ", err)
+	defer func() {
+		if r := recover(); r != nil {
+			switch e := r.(type) {
+			case FrobError:
+				resource.Defrob(e.defrobTag)
+				err = e.inner
+				fmt.Println("2 - panicked but recovered")
+			default:
+				fmt.Println("4 - I panicked but error type is not FrobError, so I can't proceed")
+				err = r.(error)
+			}
+			resource.Close()
+		}
+	}()
+	fmt.Println("1 - I could panic here ")
 	resource.Frob(input)
-	if defrobStr != "" {
-		resource.Defrob(defrobStr)
-	}
-	return nil
+	fmt.Println("3 - if panicked I couldn't get here")
+	defer resource.Close()
+	return err
 }
